@@ -42,10 +42,29 @@ exports.updateState = async (req, res) => {
 exports.getDefaults = async (req, res) => {
   const unidade = (req.query.unidade || 'SP').toUpperCase();
   try {
-    const rows = await prisma.priceDefault.findMany({
+    let rows = await prisma.priceDefault.findMany({
       where: { unidade },
       orderBy: [{ tipoDia: 'desc' }, { periodo: 'asc' }, { qtdPessoas: 'asc' }]
     });
+
+    if (rows.length === 0) {
+      const periodos = ['manha', 'tarde', 'noite'];
+      const tiposDia = ['semana', 'fim_de_semana'];
+      const payload = [];
+      for(const tipo of tiposDia) {
+         for(const per of periodos) {
+            payload.push({ unidade, tipoDia: tipo, periodo: per, qtdPessoas: 1, valor: 0 });
+            payload.push({ unidade, tipoDia: tipo, periodo: per, qtdPessoas: 2, valor: 0 });
+            payload.push({ unidade, tipoDia: tipo, periodo: per, qtdPessoas: 3, valor: 0 });
+         }
+      }
+      await prisma.priceDefault.createMany({ data: payload });
+      rows = await prisma.priceDefault.findMany({
+        where: { unidade },
+        orderBy: [{ tipoDia: 'desc' }, { periodo: 'asc' }, { qtdPessoas: 'asc' }]
+      });
+    }
+
     return res.status(200).json(rows);
   } catch (error) {
     return res.status(500).json({ error: 'Erro ao buscar padrões.' });
@@ -69,10 +88,24 @@ exports.updateDefault = async (req, res) => {
 exports.getCategoryMedia = async (req, res) => {
   const unidade = req.params.unidade.toUpperCase();
   try {
-    const rows = await prisma.priceCategoryMedia.findMany({
+    let rows = await prisma.priceCategoryMedia.findMany({
       where: { unidade },
       orderBy: { qtdPessoas: 'asc' }
     });
+
+    if (rows.length === 0) {
+      const payload = [
+        { unidade, qtdPessoas: 1, titulo: 'Single', avisoCategoria: null, mediaUrl: null },
+        { unidade, qtdPessoas: 2, titulo: 'Mão Amiga', avisoCategoria: null, mediaUrl: null },
+        { unidade, qtdPessoas: 3, titulo: 'Marmita', avisoCategoria: null, mediaUrl: null }
+      ];
+      await prisma.priceCategoryMedia.createMany({ data: payload });
+      rows = await prisma.priceCategoryMedia.findMany({
+        where: { unidade },
+        orderBy: { qtdPessoas: 'asc' }
+      });
+    }
+
     return res.status(200).json(rows);
   } catch (error) {
     return res.status(500).json({ error: 'Erro ao buscar mídias.' });

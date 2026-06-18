@@ -24,7 +24,7 @@ export default function App() {
               <Route 
                 path="/prices-edit" 
                 element={
-                  <AuthGuard allowedRoles={['admin-hefhub-sp', 'admin-hefhub-rj', 'admin-hefhub-bh', 'admin-sp', 'admin-rj', 'admin-bh']}>
+                  <AuthGuard allowedRoles={['admin-sp', 'admin-rj', 'admin-bh', 'admin-hefhub-sp', 'admin-hefhub-rj', 'admin-hefhub-bh']}>
                     <AppLayout>
                       <PricesEdit />
                     </AppLayout>

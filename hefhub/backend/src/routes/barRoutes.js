@@ -1,13 +1,18 @@
 const express = require('express');
-const barController = require('../controllers/barController');
-const { requireAuth } = require('../middlewares/authMiddleware');
-
 const router = express.Router();
+const { authMiddleware } = require('../middlewares/authMiddleware');
+const barController = require('../controllers/barController');
 
-router.use(requireAuth);
+const multer = require('multer');
+const upload = multer({ 
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 }
+});
 
-router.get('/ocupacao', barController.getOcupacao);
-router.get('/precos-atuais', barController.getPrecosAtuais);
-router.get('/pulseira', barController.getPulseira);
+router.get('/tv-banners/:unidade', barController.getTvBanners);
+
+router.use(authMiddleware);
+
+router.post('/tv-banners', barController.saveTvBanners);
 
 module.exports = router;

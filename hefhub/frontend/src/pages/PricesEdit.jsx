@@ -199,7 +199,7 @@ export default function PricesEdit() {
                 value={manualFuture}
                 onChange={(event) => setManualFuture(event.target.value)}
                 placeholder={liveState.valorPadraoFuturo || '???'}
-                className="w-52 border-b-2 border-orange-500/30 bg-transparent text-5xl font-black tracking-tighter text-white outline-none placeholder:text-white/10 focus:border-orange-400"
+                className="w-52 border-b-2 border-orange-500/30 bg-transparent text-5xl font-black tracking-tighter text-white outline-none placeholder:text-white/10 focus:border-orange-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
             </div>
             <p className="relative z-10 mt-2 text-xs text-white/30">
@@ -228,11 +228,11 @@ export default function PricesEdit() {
         </AnimatePresence>
       </div>
 
-      <div className="mt-auto flex shrink-0 items-center justify-end gap-4 border-t border-white/10 pb-6 pt-6">
+      <div className="mt-auto flex shrink-0 items-center justify-end gap-4 border-t border-slate-700/30 pb-6 pt-6">
         <button
           onClick={handleSaveState}
           disabled={saveState.isPending}
-          className="flex h-13 w-full items-center justify-center gap-2 rounded-xl bg-linear-to-r from-green-600 to-emerald-500 px-8 text-xs font-black uppercase tracking-widest text-white shadow-[0_0_20px_rgba(34,197,94,0.35)] transition-all hover:scale-[1.02] hover:brightness-110 active:scale-95 disabled:opacity-60 sm:w-auto"
+          className="flex h-13 w-full items-center justify-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-indigo-500 px-8 text-xs font-black uppercase tracking-widest text-white shadow-[0_0_20px_rgba(59,130,246,0.35)] transition-all hover:scale-[1.02] hover:brightness-110 active:scale-95 disabled:opacity-60 sm:w-auto"
         >
           {saveState.isPending ? (
             <>

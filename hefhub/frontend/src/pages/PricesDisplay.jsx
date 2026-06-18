@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useParams } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import { usePricesQuery } from '../hooks/usePricesQuery';
 import DisplayShell from '../components/views/prices/DisplayShell';
@@ -12,8 +13,12 @@ const periodData = {
 };
 
 export default function PricesDisplay() {
+  const { unidade } = useParams();
   const { user, logout } = useAuthStore();
-  const currentUnit = user?.unidade ? user.unidade.toUpperCase() : 'SP';
+  
+  const currentUnit = unidade 
+    ? unidade.toUpperCase() 
+    : (user?.unidade ? user.unidade.toUpperCase() : 'SP');
   
   const { data, isLoading, isError } = usePricesQuery(currentUnit);
   const [exitClicks, setExitClicks] = useState(0);
@@ -25,11 +30,13 @@ export default function PricesDisplay() {
     if (exitClicks > 0 && exitClicks < 5) {
       timeout = setTimeout(() => setExitClicks(0), 3000);
     } else if (exitClicks >= 5) {
-      logout();
+      if (user) {
+        logout();
+      }
       window.location.href = '/';
     }
     return () => clearTimeout(timeout);
-  }, [exitClicks, logout]);
+  }, [exitClicks, logout, user]);
 
   useEffect(() => {
     const checkScreenSize = () => {

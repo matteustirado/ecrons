@@ -10,7 +10,8 @@ export default function Login() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const redirectUrl = searchParams.get('redirect') || '';
-  const setAuth = useAuthStore((state) => state.setAuth);
+  const isLogout = searchParams.get('logout') === 'true';
+  const { setAuth, token, isAuthenticated, logout } = useAuthStore();
 
   const { data: currentTheme, isLoading: isLoadingTheme } = useAppTheme(redirectUrl);
   const { state, mutations, actions } = useAuthFlow({ redirectUrl, navigate, setAuth });
@@ -19,6 +20,23 @@ export default function Login() {
   useEffect(() => {
     document.documentElement.classList.add('dark');
   }, []);
+
+  useEffect(() => {
+    if (isLogout) {
+      logout();
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, [isLogout, logout]);
+
+  useEffect(() => {
+    if (isAuthenticated && token && !isLogout) {
+      if (redirectUrl) {
+        window.location.href = `${redirectUrl}?token=${token}`;
+      } else {
+        navigate('/');
+      }
+    }
+  }, [isAuthenticated, token, redirectUrl, navigate, isLogout]);
 
   const handleStep1Submit = (credentials) => {
     if (!credentials.username || !credentials.password) {
