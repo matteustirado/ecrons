@@ -1,0 +1,53 @@
+version: '3.8'
+
+networks:
+  ecrons_net:
+    external: true
+  hefhub_internal:
+    driver: bridge
+
+services:
+  hefhub-mysql:
+    image: mysql:8.0
+    container_name: hefhub_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: "Ecrons_Root_2026_Secure!"
+      MYSQL_DATABASE: "hefhub_local"
+    ports:
+      - "3307:3306"
+    volumes:
+      - hefhub_db_data:/var/lib/mysql
+    networks:
+      - hefhub_internal
+
+  hefhub-api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: hefhub_api
+    restart: unless-stopped
+    depends_on:
+      - hefhub-mysql
+    env_file:
+      - ./backend/.env
+    networks:
+      - hefhub_internal
+      - ecrons_net
+
+  hefhub-web:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: "https://hefhub2-api.dedalosbar.com/api"
+    container_name: hefhub_web
+    restart: unless-stopped
+    depends_on:
+      - hefhub-api
+    networks:
+      - hefhub_internal
+      - ecrons_net
+
+volumes:
+  hefhub_db_data:

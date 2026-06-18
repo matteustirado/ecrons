@@ -1,0 +1,35 @@
+version: '3.8'
+
+networks:
+  ecrons_net:
+    external: true
+
+services:
+  auth-api:
+    build:
+      context: ./backend
+    container_name: ecrons_auth_api
+    restart: always
+    env_file: ./backend/.env
+    networks:
+      - ecrons_net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=ecrons_net"
+      - "traefik.http.routers.auth-api.rule=Host(`api.auth.dedalosbar.com`)"
+      - "traefik.http.routers.auth-api.entrypoints=web"
+      - "traefik.http.services.auth-api.loadbalancer.server.port=4000"
+
+  auth-web:
+    build:
+      context: ./frontend
+    container_name: ecrons_auth_web
+    restart: always
+    networks:
+      - ecrons_net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=ecrons_net"
+      - "traefik.http.routers.auth-web.rule=Host(`auth.dedalosbar.com`)"
+      - "traefik.http.routers.auth-web.entrypoints=web"
+      - "traefik.http.services.auth-web.loadbalancer.server.port=80"

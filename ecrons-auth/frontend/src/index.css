@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ecrons-dark: #0f172a;
+  --color-ecrons-primary: #3b82f6;
+}
+
+body {
+  @apply bg-slate-900 text-slate-100 min-h-screen antialiased;
+}

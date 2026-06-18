@@ -1,0 +1,40 @@
+http:
+  routers:
+    auth-web-router:
+      rule: "Host(`auth.dedalosbar.com`)"
+      service: "auth-web-service"
+      entryPoints:
+        - web
+    auth-api-router:
+      rule: "Host(`auth-api.dedalosbar.com`)"
+      service: "auth-api-service"
+      entryPoints:
+        - web
+    hefhub-web-router:
+      rule: "Host(`hefhub2.dedalosbar.com`)"
+      service: "hefhub-web-service"
+      entryPoints:
+        - web
+    hefhub-api-router:
+      rule: "Host(`hefhub2-api.dedalosbar.com`)"
+      service: "hefhub-api-service"
+      entryPoints:
+        - web
+
+  services:
+    auth-web-service:
+      loadBalancer:
+        servers:
+          - url: "http://ecrons_auth_web:80"
+    auth-api-service:
+      loadBalancer:
+        servers:
+          - url: "http://ecrons_auth_api:4000"
+    hefhub-web-service:
+      loadBalancer:
+        servers:
+          - url: "http://hefhub_web:80"
+    hefhub-api-service:
+      loadBalancer:
+        servers:
+          - url: "http://hefhub_api:4001"

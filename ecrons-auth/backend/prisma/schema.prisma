@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String         @id @default(uuid())
+  username      String         @unique
+  email         String?        @unique
+  password      String
+  role          String         @default("USER")
+  isActive      Boolean        @default(true)
+  totpSecret    String?
+  isTotpEnabled Boolean        @default(false)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  refreshTokens RefreshToken[]
+  authLogs      AuthLog[]
+}
+
+model RefreshToken {
+  id              String    @id @default(uuid())
+  tokenHash       String    @unique
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt       DateTime
+  revokedAt       DateTime?
+  replacedByToken String?
+  ipAddress       String?
+  userAgent       String?
+  createdAt       DateTime  @default(now())
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+model AuthLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  event     String
+  ipAddress String?
+  userAgent String?
+  status    String
+  reason    String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@map("auth_logs")
+}
+
+model App {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?  @db.Text
+  url         String?
+  logoUrl     String?
+  status      String   @default("DEVELOPMENT")
+  color       String   @default("slate")
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

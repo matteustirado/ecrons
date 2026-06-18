@@ -1,0 +1,80 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x", "windows"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id
+  username  String   @unique
+  role      String
+  isActive  Boolean  @default(true)
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model PriceState {
+  unidade      String   @id
+  valorAtual   Float    @default(0)
+  modoFesta    Boolean  @default(false)
+  partyBanners String   @default("[]") @db.VarChar(5000)
+  valorFuturo  Float?
+  textoFuturo  String?  @default("???")
+  valorPassado Float?
+  aviso1       String?
+  aviso2       String?
+  aviso3       String?
+  aviso4       String?
+  updatedAt    DateTime @updatedAt
+
+  @@map("price_states")
+}
+
+model PriceDefault {
+  id         String   @id @default(uuid())
+  unidade    String
+  tipoDia    String
+  periodo    String
+  qtdPessoas Int
+  valor      Float
+  updatedAt  DateTime @updatedAt
+
+  @@map("price_defaults")
+}
+
+model PriceCategoryMedia {
+  id             String   @id @default(uuid())
+  unidade        String
+  qtdPessoas     Int
+  titulo         String?
+  mediaUrl       String?
+  avisoCategoria String?
+  updatedAt      DateTime @updatedAt
+
+  @@map("price_category_media")
+}
+
+model Holiday {
+  id          String   @id @default(uuid())
+  unidade     String
+  nome        String
+  dataFeriado String
+  createdAt   DateTime @default(now())
+
+  @@map("holidays")
+}
+
+model Promotion {
+  id         String   @id @default(uuid())
+  unidade    String
+  imageUrl   String
+  diasAtivos String   @default("[]")
+  createdAt  DateTime @default(now())
+
+  @@map("promotions")
+}
