@@ -1,6 +1,7 @@
 const { PrismaClient } = require('@prisma/client');
 const { getIO } = require('../utils/socket');
 const { uploadBuffer } = require('../utils/s3Service');
+const { processSiteData } = require('../utils/priceDaemon');
 
 const prisma = new PrismaClient();
 
@@ -17,6 +18,16 @@ exports.getState = async (req, res) => {
     if (!state) {
       state = await prisma.priceState.create({ data: { unidade, valorAtual: 0 } });
     }
+
+    try {
+      const liveData = await processSiteData(unidade);
+      if (liveData) {
+        state = await prisma.priceState.findUnique({ where: { unidade } });
+      }
+    } catch (daemonError) {
+      console.error('[PRICE CONTROLLER] Falha ao rodar o Daemon na requisição:', daemonError);
+    }
+
     return res.status(200).json(state);
   } catch (error) {
     return res.status(500).json({ error: 'Erro ao buscar estado.' });

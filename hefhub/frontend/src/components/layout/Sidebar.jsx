@@ -7,8 +7,7 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
 
   const handleLogout = () => {
     logout();
-    // O ?logout=true é o gatilho que avisa o Ecrons para destruir a sessão dele também!
-    window.location.href = 'https://auth.dedalosbar.com/login?logout=true';
+    window.location.href = '/';
   };
 
   const username = user?.username || 'usuario';
@@ -16,7 +15,7 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
   const roleName = isSuper ? 'Master Level' : 'Administrador';
 
   return (
-    <aside className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-slate-700/30 bg-black/40 backdrop-blur-2xl transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+    <aside className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-slate-700/30 bg-black/90 backdrop-blur-2xl transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
       <div className="flex h-20 items-center justify-between px-6">
         <div className="flex items-center gap-3">
           <div className="h-8 w-8 overflow-hidden rounded-xl p-0.5 shadow-sm">
@@ -58,6 +57,7 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
         
         <NavLink 
           to="/prices-edit"
+          onClick={() => setIsSidebarOpen(false)}
           className={({ isActive }) => `flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold transition-all ${isActive ? 'bg-slate-800/50 border border-slate-600/30 text-white shadow-lg' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}
         >
           <Edit size={18} /> Manutenção
@@ -65,6 +65,7 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
         <NavLink 
           to="/prices-display"
           target="_blank"
+          onClick={() => setIsSidebarOpen(false)}
           className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold transition-all text-slate-400 hover:bg-white/5 hover:text-white"
         >
           <MonitorPlay size={18} /> Tela da TV
