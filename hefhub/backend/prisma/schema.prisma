@@ -78,3 +78,58 @@ model Promotion {
 
   @@map("promotions")
 }
+
+model ScoreboardConfig {
+  id            String   @id @default(uuid())
+  unidade       String   @unique
+  titulo        String   @default("")
+  layout        String   @default("landscape")
+  isActive      Boolean  @default(false)
+  capacidadeMax Int      @default(230)
+  opcoes        Json     @default("[]")
+  updatedAt     DateTime @updatedAt
+
+  @@map("scoreboard_configs")
+}
+
+model ScoreboardPreset {
+  id            String   @id @default(uuid())
+  unidade       String
+  titulo_preset String
+  titulo_placar String   @default("")
+  layout        String   @default("landscape")
+  opcoes        Json     @default("[]")
+  createdAt     DateTime @default(now())
+
+  @@index([unidade])
+  @@map("scoreboard_presets")
+}
+
+model ScoreboardVote {
+  id               String    @id @default(uuid())
+  unidade          String
+  cliente_id       String?
+  cliente_nome     String?
+  cliente_pulseira String?
+  option_index     Int?
+  status           String    @default("DENTRO")
+  expires_at       DateTime?
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
+
+  @@index([unidade, created_at])
+  @@map("scoreboard_votes")
+}
+
+model ScoreboardPhrase {
+  id          String   @id @default(uuid())
+  unidade     String
+  tipo        String   @default("movement")
+  porcentagem Int?
+  texto       String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([unidade, tipo])
+  @@map("scoreboard_phrases")
+}

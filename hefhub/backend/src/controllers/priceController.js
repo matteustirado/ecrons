@@ -1,7 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const { getIO } = require('../utils/socket');
 const { uploadBuffer } = require('../utils/s3Service');
-const { processSiteData } = require('../utils/priceDaemon');
 
 const prisma = new PrismaClient();
 
@@ -9,6 +8,59 @@ const emitPricesUpdate = (unidade) => {
   try {
     getIO().emit('prices:updated', { unidade });
   } catch (error) {}
+};
+
+const getSpTime = () => {
+  const d = new Date();
+  const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+  return new Date(utc + (3600000 * -3)); 
+};
+
+const enrichState = async (state, unidade) => {
+  const defaults = await prisma.priceDefault.findMany({ where: { unidade } });
+
+  const spTime = getSpTime();
+  const hour = spTime.getHours();
+  const dayOfWeek = spTime.getDay();
+
+  let periodoAtual = 'noite';
+  if (hour >= 6 && hour < 14) periodoAtual = 'manha';
+  else if (hour >= 14 && hour < 20) periodoAtual = 'tarde';
+
+  let tipoDia = (dayOfWeek === 0 || dayOfWeek === 6) ? 'fim_de_semana' : 'semana';
+
+  const currDef = defaults.find(d => d.tipoDia === tipoDia && d.periodo === periodoAtual && d.qtdPessoas === 1);
+  const valorPadrao = currDef ? Number(currDef.valor) : 0;
+  const valorRealApi = Number(state.valorAtual) || 0;
+
+  const isPadrao = valorRealApi === valorPadrao;
+
+  let nextPeriodo = 'manha';
+  let nextTipoDia = tipoDia;
+  if (periodoAtual === 'manha') nextPeriodo = 'tarde';
+  else if (periodoAtual === 'tarde') nextPeriodo = 'noite';
+  else {
+    nextPeriodo = 'manha';
+    const nextDay = (dayOfWeek + 1) % 7;
+    nextTipoDia = (nextDay === 0 || nextDay === 6) ? 'fim_de_semana' : 'semana';
+  }
+  const nextDef = defaults.find(d => d.tipoDia === nextTipoDia && d.periodo === nextPeriodo && d.qtdPessoas === 1);
+  const valorPadraoFuturo = nextDef ? Number(nextDef.valor) : 0;
+
+  let parsedBanners = [];
+  try {
+    parsedBanners = state.partyBanners ? JSON.parse(state.partyBanners) : [];
+  } catch (e) {}
+
+  return {
+    ...state,
+    partyBanners: parsedBanners,
+    valorRealApi,
+    isPadrao,
+    tipoDia,
+    periodoAtual,
+    valorPadraoFuturo
+  };
 };
 
 exports.getState = async (req, res) => {
@@ -19,33 +71,32 @@ exports.getState = async (req, res) => {
       state = await prisma.priceState.create({ data: { unidade, valorAtual: 0 } });
     }
 
-    try {
-      const liveData = await processSiteData(unidade);
-      if (liveData) {
-        state = await prisma.priceState.findUnique({ where: { unidade } });
-      }
-    } catch (daemonError) {
-      console.error('[PRICE CONTROLLER] Falha ao rodar o Daemon na requisição:', daemonError);
-    }
-
-    return res.status(200).json(state);
+    const enrichedState = await enrichState(state, unidade);
+    return res.status(200).json(enrichedState);
   } catch (error) {
+    console.error(error);
     return res.status(500).json({ error: 'Erro ao buscar estado.' });
   }
 };
 
 exports.updateState = async (req, res) => {
   const unidade = req.params.unidade.toUpperCase();
-  const data = req.body;
+  
+  const { modoFesta, partyBanners, valorFuturo, textoFuturo, aviso1, aviso2, aviso3, aviso4 } = req.body;
+  const data = { modoFesta, partyBanners, valorFuturo, textoFuturo, aviso1, aviso2, aviso3, aviso4 };
+  
+  Object.keys(data).forEach(key => data[key] === undefined && delete data[key]);
+
   try {
     const updated = await prisma.priceState.upsert({
       where: { unidade },
       update: data,
-      create: { unidade, ...data }
+      create: { unidade, valorAtual: 0, ...data }
     });
     emitPricesUpdate(unidade);
     return res.status(200).json(updated);
   } catch (error) {
+    console.error(error);
     return res.status(500).json({ error: 'Erro ao atualizar estado.' });
   }
 };

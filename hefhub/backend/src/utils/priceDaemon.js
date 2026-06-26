@@ -11,19 +11,20 @@ const getSlug = (unidade) => {
 };
 
 const runPriceMonitor = async () => {
+  let io;
   try {
-    let io;
-    try {
-      io = getIO();
-    } catch {
-      return;
-    }
+    io = getIO();
+  } catch {
+    return;
+  }
 
-    for (const unidade of UNIDADES) {
+  for (const unidade of UNIDADES) {
+    try {
       const slug = getSlug(unidade);
       if (!slug) continue;
 
       let externalPrice = null;
+      
       try {
         const response = await dedalosService.fetchPrecosAtuais(slug);
         if (response && Array.isArray(response.precos)) {
@@ -49,8 +50,8 @@ const runPriceMonitor = async () => {
           io.emit('prices:updated', { unidade });
         }
       }
-    }
-  } catch (error) {}
+    } catch (error) {}
+  }
 };
 
 exports.startPricesMonitor = () => {

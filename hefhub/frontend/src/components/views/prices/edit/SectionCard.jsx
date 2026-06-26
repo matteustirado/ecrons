@@ -2,15 +2,15 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 
 export default function SectionCard({ title, icon, open, onToggle, children }) {
   return (
-    <div className="bg-black/30 border border-white/10 backdrop-blur-2xl rounded-3xl p-6 shadow-2xl">
-      <button onClick={onToggle} className="w-full flex items-center justify-between outline-none">
-        <h2 className="text-white font-black text-lg flex items-center gap-2">
+    <div className="w-full rounded-3xl border border-white/10 bg-black/30 p-6 shadow-2xl backdrop-blur-2xl transition-all duration-300 md:p-8">
+      <button onClick={onToggle} className="flex w-full items-center justify-between outline-none">
+        <h2 className="flex items-center gap-3 text-lg font-black text-white md:text-xl">
           {icon}
           {title}
         </h2>
-        {open ? <ChevronUp className="text-white/45" /> : <ChevronDown className="text-white/45" />}
+        {open ? <ChevronUp className="text-white/45" size={24} /> : <ChevronDown className="text-white/45" size={24} />}
       </button>
-      {open && <div className="mt-6 animate-fade-in">{children}</div>}
+      {open && <div className="mt-6 animate-fade-in md:mt-8">{children}</div>}
     </div>
   );
 }

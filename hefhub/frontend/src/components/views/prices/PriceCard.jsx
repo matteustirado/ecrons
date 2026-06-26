@@ -1,7 +1,7 @@
-export default function PriceCard({ index, qtdPessoas, colData, liveState, defaults, mediaData, isActive, isTablet }) {
+export default function PriceCard({ index, qtdPessoas, colData, liveState, defaults, mediaData, isActive }) {
   const defCombo = defaults.find(
     (item) =>
-      item.tipoDia === liveState.tipoDia &&
+      item.tipoDia === colData.tipoDia &&
       item.periodo === colData.key &&
       Number(item.qtdPessoas) === qtdPessoas
   );
@@ -13,41 +13,29 @@ export default function PriceCard({ index, qtdPessoas, colData, liveState, defau
     if (qtdPessoas === 1) {
       finalPrice = parseFloat(liveState.valorAtual);
     } else {
-      if (liveState.is_padrao) {
+      if (liveState.isPadrao) {
         finalPrice = defCombo ? parseFloat(defCombo.valor) : 0;
       } else {
         showQuestionMarks = true;
       }
     }
   } else if (colData.type === 'future') {
-    if (liveState.textoFuturo === '???' && !liveState.valorFuturo) {
-      showQuestionMarks = true;
-    } else if (liveState.valorFuturo) {
-      if (qtdPessoas === 1) {
+    if (liveState.isPadrao) {
+      finalPrice = defCombo ? parseFloat(defCombo.valor) : 0;
+    } else {
+      if (liveState.textoFuturo === '???' && !liveState.valorFuturo) {
+        showQuestionMarks = true;
+      } else if (liveState.valorFuturo && qtdPessoas === 1) {
         finalPrice = parseFloat(liveState.valorFuturo);
       } else {
         showQuestionMarks = true;
       }
-    } else {
-      if (!liveState.is_padrao) {
-        showQuestionMarks = true;
-      } else {
-        finalPrice = defCombo ? parseFloat(defCombo.valor) : 0;
-      }
     }
   } else if (colData.type === 'past') {
-    if (liveState.valorPassado) {
-      if (qtdPessoas === 1) {
-        finalPrice = parseFloat(liveState.valorPassado);
-      } else {
-        showQuestionMarks = true;
-      }
+    if (liveState.valorPassado && qtdPessoas === 1) {
+      finalPrice = parseFloat(liveState.valorPassado);
     } else {
-      if (!liveState.is_padrao) {
-        showQuestionMarks = true;
-      } else {
-        finalPrice = defCombo ? parseFloat(defCombo.valor) : 0;
-      }
+      finalPrice = defCombo ? parseFloat(defCombo.valor) : 0;
     }
   }
 
@@ -82,20 +70,20 @@ export default function PriceCard({ index, qtdPessoas, colData, liveState, defau
 
   if (!isActive) {
     return (
-      <div className={`relative overflow-hidden rounded-3xl border border-white/10 bg-black/35 shadow-xl backdrop-blur-2xl ${isTablet ? 'h-36 p-4' : 'h-40 p-5'}`}>
+      <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-black/35 p-4 shadow-xl backdrop-blur-2xl md:h-36 lg:h-40 lg:p-5">
         <div className="absolute inset-0 bg-linear-to-br from-white/10 via-transparent to-orange-500/10" />
         <div className="relative z-10 flex h-full flex-col justify-center">
-          <h3 className={`font-black uppercase leading-tight tracking-wide text-white ${isTablet ? 'mb-2 text-base' : 'mb-3 text-lg'}`}>
+          <h3 className="mb-2 text-base font-black uppercase leading-tight tracking-wide text-white lg:mb-3 lg:text-lg">
             {title}
           </h3>
           {qtdPessoas === 1 ? (
-            <div className={`font-black leading-none tracking-[-0.06em] text-white ${isTablet ? 'text-3xl' : 'text-4xl'}`}>
+            <div className="text-3xl font-black leading-none tracking-[-0.06em] text-white lg:text-4xl">
               {mainDisplayPrice}
             </div>
           ) : (
             <div className="flex flex-col justify-center gap-1">
               <span className="text-[0.7rem] font-black uppercase tracking-widest text-white/55">cada um paga</span>
-              <div className={`font-black leading-none tracking-[-0.06em] text-white ${isTablet ? 'text-2xl' : 'text-3xl'}`}>
+              <div className="text-2xl font-black leading-none tracking-[-0.06em] text-white lg:text-3xl">
                 {mainDisplayPrice}
               </div>
               <span className="text-[0.65rem] font-extrabold uppercase tracking-wide text-white/45">{subText}</span>
@@ -109,7 +97,7 @@ export default function PriceCard({ index, qtdPessoas, colData, liveState, defau
   const activeBackground = index === 0 ? 'from-orange-500/35' : index === 1 ? 'from-yellow-500/30' : 'from-purple-500/30';
 
   return (
-    <div className={`relative overflow-hidden rounded-3xl border border-orange-400/40 bg-black/55 shadow-[0_0_35px_rgba(249,115,22,0.22),0_24px_60px_rgba(0,0,0,0.55)] backdrop-blur-2xl ${isTablet ? 'h-52 p-6' : 'h-64 p-7'}`}>
+    <div className="relative overflow-hidden rounded-3xl border border-orange-400/40 bg-black/55 p-6 shadow-[0_0_35px_rgba(249,115,22,0.22),0_24px_60px_rgba(0,0,0,0.55)] backdrop-blur-2xl md:h-52 lg:h-64 lg:p-7">
       <div className={`absolute inset-0 bg-linear-to-br ${activeBackground} via-black/55 to-black/80`} />
       <div className="absolute inset-0 bg-linear-to-br from-white/10 via-transparent to-transparent" />
       {mediaUrl && (isVideo ? (
@@ -118,22 +106,22 @@ export default function PriceCard({ index, qtdPessoas, colData, liveState, defau
         <img src={mediaUrl} className="absolute inset-0 h-full w-full object-cover opacity-35" alt="" />
       ))}
       <div className={`relative z-10 flex min-h-full flex-col justify-center ${index === 1 ? 'items-end text-right' : 'items-start text-left'}`}>
-        <h3 className={`font-black uppercase leading-tight tracking-wide text-white drop-shadow-lg ${isTablet ? 'mb-3 text-xl' : 'mb-4 text-xl xl:text-2xl'}`}>
+        <h3 className="mb-3 text-xl font-black uppercase leading-tight tracking-wide text-white drop-shadow-lg lg:mb-4 xl:text-2xl">
           {title}
         </h3>
         {qtdPessoas === 1 ? (
-          <div className={`font-black leading-none tracking-[-0.06em] text-white drop-shadow-[0_4px_18px_rgba(0,0,0,0.8)] ${isTablet ? 'text-4xl' : 'text-4xl xl:text-5xl'}`}>
+          <div className="text-4xl font-black leading-none tracking-[-0.06em] text-white drop-shadow-[0_4px_18px_rgba(0,0,0,0.8)] xl:text-5xl">
             {mainDisplayPrice}
           </div>
         ) : (
           <div className="flex flex-col justify-center gap-2">
-            <span className={`font-black uppercase tracking-widest text-white/65 ${isTablet ? 'text-sm' : 'text-sm xl:text-base'}`}>
+            <span className="text-sm font-black uppercase tracking-widest text-white/65 xl:text-base">
               {topText}
             </span>
-            <div className={`font-black leading-none tracking-[-0.06em] text-white drop-shadow-[0_4px_18px_rgba(0,0,0,0.8)] ${isTablet ? 'text-4xl' : 'text-4xl xl:text-5xl'}`}>
+            <div className="text-4xl font-black leading-none tracking-[-0.06em] text-white drop-shadow-[0_4px_18px_rgba(0,0,0,0.8)] xl:text-5xl">
               {mainDisplayPrice}
             </div>
-            <span className={`font-extrabold uppercase tracking-wide text-white/55 ${isTablet ? 'text-xs' : 'text-xs xl:text-sm'}`}>
+            <span className="text-xs font-extrabold uppercase tracking-wide text-white/55 xl:text-sm">
               {subText}
             </span>
           </div>

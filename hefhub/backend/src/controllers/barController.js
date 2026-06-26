@@ -1,19 +1,33 @@
 const dedalosService = require('../services/dedalosService');
 const memoryCache = require('../utils/memoryCache');
 
-const CACHE_TTL = 10; 
+const CACHE_TTL = 10;
+
+const parseUnidadeSlug = (unidade) => {
+  const parsed = String(unidade).toLowerCase().trim();
+  const map = {
+    sp: 'sao-paulo',
+    'sao-paulo': 'sao-paulo',
+    rj: 'rio-de-janeiro',
+    'rio-de-janeiro': 'rio-de-janeiro',
+    bh: 'belo-horizonte',
+    'belo-horizonte': 'belo-horizonte'
+  };
+  return map[parsed] || parsed;
+};
 
 exports.getOcupacao = async (req, res) => {
   try {
-    const { unidade_slug } = req.query;
-    if (!unidade_slug) return res.status(400).json({ error: 'Parâmetro unidade_slug ausente.' });
+    const rawUnidade = req.query.unidade_slug || req.query.unidade;
+    if (!rawUnidade) return res.status(400).json({ error: 'Parâmetro de unidade ausente.' });
 
-    const cacheKey = `ocupacao:${unidade_slug}`;
+    const unidadeSlug = parseUnidadeSlug(rawUnidade);
+    const cacheKey = `ocupacao:${unidadeSlug}`;
     const cachedData = memoryCache.get(cacheKey);
 
     if (cachedData) return res.status(200).json(cachedData);
 
-    const data = await dedalosService.fetchOcupacao(unidade_slug);
+    const data = await dedalosService.fetchOcupacao(unidadeSlug);
     memoryCache.set(cacheKey, data, CACHE_TTL);
 
     return res.status(200).json(data);
@@ -25,15 +39,16 @@ exports.getOcupacao = async (req, res) => {
 
 exports.getPrecosAtuais = async (req, res) => {
   try {
-    const { unidade_slug } = req.query;
-    if (!unidade_slug) return res.status(400).json({ error: 'Parâmetro unidade_slug ausente.' });
+    const rawUnidade = req.query.unidade_slug || req.query.unidade;
+    if (!rawUnidade) return res.status(400).json({ error: 'Parâmetro de unidade ausente.' });
 
-    const cacheKey = `precos:${unidade_slug}`;
+    const unidadeSlug = parseUnidadeSlug(rawUnidade);
+    const cacheKey = `precos:${unidadeSlug}`;
     const cachedData = memoryCache.get(cacheKey);
 
     if (cachedData) return res.status(200).json(cachedData);
 
-    const data = await dedalosService.fetchPrecosAtuais(unidade_slug);
+    const data = await dedalosService.fetchPrecosAtuais(unidadeSlug);
     memoryCache.set(cacheKey, data, CACHE_TTL);
 
     return res.status(200).json(data);
@@ -45,10 +60,14 @@ exports.getPrecosAtuais = async (req, res) => {
 
 exports.getPulseira = async (req, res) => {
   try {
-    const { unidade_slug, numero } = req.query;
-    if (!unidade_slug || !numero) return res.status(400).json({ error: 'Parâmetros insuficientes.' });
+    const rawUnidade = req.query.unidade_slug || req.query.unidade;
+    const { numero } = req.query;
+    
+    if (!rawUnidade || !numero) return res.status(400).json({ error: 'Parâmetros insuficientes.' });
 
-    const data = await dedalosService.fetchPulseira(unidade_slug, numero);
+    const unidadeSlug = parseUnidadeSlug(rawUnidade);
+    const data = await dedalosService.fetchPulseira(unidadeSlug, numero);
+    
     return res.status(200).json(data);
   } catch (error) {
     console.error('[ERRO API DÉDALOS - PULSEIRA]', error.response?.data || error.message);

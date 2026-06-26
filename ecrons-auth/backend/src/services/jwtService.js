@@ -8,7 +8,7 @@ const generateTokens = async (user, req) => {
   const accessToken = jwt.sign(
     { id: user.id, role: user.role },
     process.env.JWT_SECRET,
-    { expiresIn: '15m' }
+    { expiresIn: '1d' }
   );
 
   const rawRefreshToken = crypto.randomBytes(40).toString('hex');

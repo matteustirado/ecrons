@@ -13,7 +13,7 @@ export default function Login() {
   const isLogout = searchParams.get('logout') === 'true';
   const { setAuth, token, isAuthenticated, logout } = useAuthStore();
 
-  const { data: currentTheme, isLoading: isLoadingTheme } = useAppTheme(redirectUrl);
+  const { data: currentTheme, isLoading: isLoadingTheme, isError } = useAppTheme(redirectUrl);
   const { state, mutations, actions } = useAuthFlow({ redirectUrl, navigate, setAuth });
   const [tempUsername, setTempUsername] = useState('');
 
@@ -33,7 +33,7 @@ export default function Login() {
       if (redirectUrl) {
         window.location.href = `${redirectUrl}?token=${token}`;
       } else {
-        navigate('/');
+        navigate('/dashboard', { replace: true });
       }
     }
   }, [isAuthenticated, token, redirectUrl, navigate, isLogout]);
@@ -51,8 +51,28 @@ export default function Login() {
     mutations.loginStep2.mutate({ code, username: tempUsername });
   };
 
-  if (isLoadingTheme || !currentTheme) {
-    return <div className="min-h-screen bg-[#050505]" />;
+  if (isLoadingTheme) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[#050505] text-slate-500">
+        <div className="mb-4 h-8 w-8 animate-spin rounded-full border-2 border-slate-600 border-t-white" />
+        <p className="text-[10px] font-bold uppercase tracking-widest">Carregando ambiente...</p>
+      </div>
+    );
+  }
+
+  if (isError || !currentTheme) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[#050505] text-slate-500 px-4 text-center">
+        <p className="text-4xl mb-2">⚠️</p>
+        <p className="text-xs font-bold uppercase tracking-widest text-white/50 mb-4">Falha ao carregar tema</p>
+        <button 
+          onClick={() => window.location.reload()} 
+          className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-white transition-colors hover:bg-white/10"
+        >
+          Tentar novamente
+        </button>
+      </div>
+    );
   }
 
   return (

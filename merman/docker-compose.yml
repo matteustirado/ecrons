@@ -1,0 +1,34 @@
+version: '3.8'
+
+networks:
+  ecrons_net:
+    external: true
+  hefhub_internal:
+    external: true
+
+services:
+  merman-api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: merman_api
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    networks:
+      - hefhub_internal
+      - ecrons_net
+
+  merman-web:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: "https://merman2-api.dedalosbar.com"
+        VITE_SSO_URL: "https://auth.dedalosbar.com"
+    container_name: merman_web
+    restart: unless-stopped
+    depends_on:
+      - merman-api
+    networks:
+      - ecrons_net

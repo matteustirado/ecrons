@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { Edit, MonitorPlay, LogOut, User, X } from 'lucide-react';
+import { Edit, MonitorPlay, LogOut, User, X, ExternalLink, Gamepad2 } from 'lucide-react';
 import { useAuthStore } from '../../stores/authStore';
 
 export default function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
@@ -21,7 +21,7 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
           <div className="h-8 w-8 overflow-hidden rounded-xl p-0.5 shadow-sm">
             <img src="/icon.png" alt="Hefhub System" className="h-full w-full object-contain drop-shadow-[0_0_8px_rgba(148,163,184,0.6)]" />
           </div>
-          <h1 className="text-lg font-black tracking-tight text-transparent bg-clip-text bg-linear-to-r from-white to-slate-500">
+          <h1 className="bg-linear-to-r from-white to-slate-500 bg-clip-text text-lg font-black tracking-tight text-transparent">
             Hefhub System
           </h1>
         </div>
@@ -53,27 +53,62 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
           </div>
         )}
 
-        <p className="mb-4 px-2 text-[10px] font-black uppercase tracking-widest text-slate-500">Menu Principal</p>
-        
-        <NavLink 
-          to="/prices-edit"
-          onClick={() => setIsSidebarOpen(false)}
-          className={({ isActive }) => `flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold transition-all ${isActive ? 'bg-slate-800/50 border border-slate-600/30 text-white shadow-lg' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}
-        >
-          <Edit size={18} /> Manutenção
-        </NavLink>
-        <NavLink 
-          to="/prices-display"
-          target="_blank"
-          onClick={() => setIsSidebarOpen(false)}
-          className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold transition-all text-slate-400 hover:bg-white/5 hover:text-white"
-        >
-          <MonitorPlay size={18} /> Tela da TV
-        </NavLink>
+        <div className="mb-6 space-y-2">
+          <p className="mb-4 px-2 text-[10px] font-black uppercase tracking-widest text-slate-500">Tabela de Preços</p>
+          
+          <NavLink 
+            to="/prices-edit"
+            onClick={() => setIsSidebarOpen(false)}
+            className={({ isActive }) => `flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold transition-all ${isActive ? 'bg-slate-800/50 border border-slate-600/30 text-white shadow-lg' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}
+          >
+            <Edit size={18} /> Manutenção
+          </NavLink>
+          <NavLink 
+            to="/prices-display"
+            target="_blank"
+            onClick={() => setIsSidebarOpen(false)}
+            className="group flex w-full items-center justify-between rounded-xl px-4 py-3 text-sm font-bold text-slate-400 transition-all hover:bg-white/5 hover:text-white"
+          >
+            <div className="flex items-center gap-3">
+              <MonitorPlay size={18} /> Display Público
+            </div>
+            <ExternalLink size={16} className="text-slate-500 opacity-60 transition-opacity group-hover:opacity-100" />
+          </NavLink>
+        </div>
+
+        <div className="space-y-2">
+          <p className="mb-4 mt-6 px-2 text-[10px] font-black uppercase tracking-widest text-slate-500">Placar de Votação</p>
+          
+          <NavLink 
+            to="/scoreboard-edit"
+            onClick={() => setIsSidebarOpen(false)}
+            className={({ isActive }) => `flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold transition-all ${isActive ? 'bg-orange-900/30 border border-orange-600/30 text-orange-400 shadow-lg' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}
+          >
+            <Edit size={18} /> Manutenção
+          </NavLink>
+          <NavLink 
+            to="/scoreboard-game"
+            onClick={() => setIsSidebarOpen(false)}
+            className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-slate-400 transition-all hover:bg-white/5 hover:text-white"
+          >
+            <Gamepad2 size={18} /> Totem (Game)
+          </NavLink>
+          <NavLink 
+            to="/scoreboard-display"
+            target="_blank"
+            onClick={() => setIsSidebarOpen(false)}
+            className="group flex w-full items-center justify-between rounded-xl px-4 py-3 text-sm font-bold text-slate-400 transition-all hover:bg-white/5 hover:text-white"
+          >
+            <div className="flex items-center gap-3">
+              <MonitorPlay size={18} /> Display Público
+            </div>
+            <ExternalLink size={16} className="text-slate-500 opacity-60 transition-opacity group-hover:opacity-100" />
+          </NavLink>
+        </div>
       </nav>
 
       <div className="border-t border-slate-700/30 p-4">
-        <div className="mb-4 flex items-center gap-3 rounded-2xl bg-black/30 p-3 border border-slate-700/30">
+        <div className="mb-4 flex items-center gap-3 rounded-2xl border border-slate-700/30 bg-black/30 p-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-800 text-white">
             <User size={18} />
           </div>
@@ -92,8 +127,8 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
         <div className="my-4 h-px w-full bg-slate-700/30" />
 
         <div className="text-center">
-          <p className="text-[10px] uppercase tracking-widest text-slate-600 font-bold">Developed by</p>
-          <p className="text-xs text-slate-300 font-bold mt-0.5">Matteus Tirado</p>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-600">Developed by</p>
+          <p className="mt-0.5 text-xs font-bold text-slate-300">Matteus Tirado</p>
         </div>
       </div>
     </aside>

@@ -8,8 +8,14 @@ export function useAppTheme(redirectUrl) {
     queryFn: async () => {
       if (!redirectUrl) return buildTheme(null);
       
-      const { data } = await axiosClient.get(`/apps/theme?url=${encodeURIComponent(redirectUrl)}`);
-      return buildTheme(data);
+      try {
+        const { data } = await axiosClient.get(`/apps/theme?url=${encodeURIComponent(redirectUrl)}`);
+        return buildTheme(data);
+      } catch (error) {
+        console.warn('[Theme] Erro ao buscar tema do app. Usando fallback (Ecrons OS).', error.message);
+        
+        return buildTheme(null);
+      }
     },
     staleTime: 1000 * 60 * 15,
   });

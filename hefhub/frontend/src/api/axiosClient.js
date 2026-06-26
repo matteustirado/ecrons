@@ -3,15 +3,17 @@ import { useAuthStore } from '../stores/authStore';
 
 const axiosClient = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
 axiosClient.interceptors.request.use((config) => {
-  const { accessToken } = useAuthStore.getState();
-  if (accessToken) {
-    config.headers.Authorization = `Bearer ${accessToken}`;
+  // Lê a propriedade correta do store (token, não accessToken)
+  const token = useAuthStore.getState().token;
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
@@ -21,7 +23,6 @@ axiosClient.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       useAuthStore.getState().logout();
-      window.location.href = '/';
     }
     return Promise.reject(error);
   }

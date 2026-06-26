@@ -1,0 +1,109 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Track {
+  id                    Int             @id @default(autoincrement())
+  youtubeId             String          @unique @map("youtube_id") @db.VarChar(50)
+  titulo                String          @db.VarChar(255)
+  artista               String?         @db.VarChar(255)
+  artistasParticipantes Json?           @map("artistas_participantes")
+  album                 String?         @db.VarChar(255)
+  ano                   Int?
+  gravadora             String?         @db.VarChar(255)
+  diretor               String?         @db.VarChar(255)
+  thumbnailUrl          String?         @map("thumbnail_url") @db.VarChar(512)
+  duracaoSegundos       Int             @map("duracao_segundos")
+  startSegundos         Int             @default(0) @map("start_segundos")
+  endSegundos           Int?            @map("end_segundos")
+  loudnessLufs          Decimal?        @map("loudness_lufs") @db.Decimal(4, 1)
+  isCommercial          Boolean         @default(false) @map("is_commercial")
+  diasSemana            Json?           @map("dias_semana")
+  statusProcessamento   TrackStatus     @default(PROCESSADO) @map("status_processamento")
+  createdAt             DateTime?       @default(now()) @map("created_at")
+  
+  playlists             PlaylistTrack[]
+  pedidos               JukeboxRequest[]
+
+  @@map("tracks")
+}
+
+model Playlist {
+  id          Int               @id @default(autoincrement())
+  nome        String            @db.VarChar(100)
+  descricao   String?           @db.Text
+  capaUrl     String?           @db.VarChar(255)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  tracks      PlaylistTrack[]
+  schedules   RadioSchedule[]
+
+  @@map("merman_playlists")
+}
+
+model PlaylistTrack {
+  id          Int      @id @default(autoincrement())
+  playlistId  Int
+  trackId     Int
+  ordem       Int
+
+  playlist    Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
+  track       Track    @relation(fields: [trackId], references: [id], onDelete: Cascade)
+
+  @@unique([playlistId, trackId])
+  @@index([ordem])
+  @@map("merman_playlist_tracks")
+}
+
+model RadioSchedule {
+  id          Int      @id @default(autoincrement())
+  unidade     String   @default("TODAS") @db.VarChar(10)
+  playlistId  Int
+  diasSemana  Json     
+  startTime   String   @db.VarChar(5) 
+  endTime     String   @db.VarChar(5) 
+  isActive    Boolean  @default(true)
+
+  playlist    Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
+
+  @@map("merman_schedules")
+}
+
+model JukeboxRequest {
+  id          Int          @id @default(autoincrement())
+  trackId     Int
+  unidade     String       @db.VarChar(10)
+  pulseiraId  String       @db.VarChar(100)
+  status      PedidoStatus @default(PENDENTE)
+  pedidoEm    DateTime     @default(now())
+  tocadoEm    DateTime?
+
+  track       Track        @relation(fields: [trackId], references: [id], onDelete: Cascade)
+
+  @@map("merman_jukebox_requests")
+}
+
+model RadioConfig {
+  key   String @id @unique @db.VarChar(50)
+  value Json
+
+  @@map("merman_radio_config")
+}
+
+enum TrackStatus {
+  PENDENTE
+  PROCESSADO
+  ERRO
+}
+
+enum PedidoStatus {
+  PENDENTE
+  TOCADO
+  VETADO
+}
